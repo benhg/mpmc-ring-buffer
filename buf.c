@@ -114,7 +114,7 @@ status_code_t init(mpmc_queue_t *queue, uint32_t capacity, uint32_t element_size
     queue->element_size = element_size;
     queue->capacity = capacity;
 
-    if (overwrite_behavior == OVERWRITE_ENUM_MAX){
+    if ((int)overwrite_behavior >= (int)OVERWRITE_ENUM_MAX){
         queue->overwrite_behavior = FAIL;
     } else{
         queue->overwrite_behavior = overwrite_behavior;
@@ -133,10 +133,10 @@ status_code_t destroy(mpmc_queue_t *queue){
     return SUCCESS;
 }
 
-status_code_t set_overwrite_behavior(mpmc_queue_t *queue, bool overwrite_behavior){
+status_code_t set_overwrite_behavior(mpmc_queue_t *queue, overwrite_behavior_t overwrite_behavior){
     
-    if (queue == NULL){
-        return FAILURE;
+    if (queue == NULL || (int) overwrite_behavior >= (int) OVERWRITE_ENUM_MAX ){
+        return INVALID;
     }
 
     queue->overwrite_behavior = overwrite_behavior;
