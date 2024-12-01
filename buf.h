@@ -1,6 +1,10 @@
 #ifndef BUF_H
 #define BUF_H
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+
 /**
  * The header file for the MPMC ring buffer
  * The data structure and function declarations live here
@@ -9,6 +13,8 @@
  * 
  * They are implemented in buf.c
  */
+
+#define PTR_FREE(x) do { if ((x) != NULL) { free(x); (x) = NULL; } } while (0)
 
 /**
  * The queue type uses void* right now
@@ -31,7 +37,8 @@ typedef enum status_code {
     EMPTY = 3,
     BUSY = 4,
     UNAVAILABLE = 5,
-    STATUS_ENUM_MAX = 6
+    INVALID= 6,
+    STATUS_ENUM_MAX = 7
 } status_code_t;
 
 
@@ -55,7 +62,7 @@ status_code_t get(mpmc_queue_t* queue, queue_entry_t* entry);
 
 status_code_t put(mpmc_queue_t* queue, queue_entry_t* entry);
 
-status_code_t init(mpmc_queue_t *queue, int capacity, uint32_t element_size, overwrite_behavior_t overwrite_behavior);
+status_code_t init(mpmc_queue_t *queue, uint32_t capacity, uint32_t element_size, overwrite_behavior_t overwrite_behavior);
 
 status_code_t destroy(mpmc_queue_t *queue);
 
