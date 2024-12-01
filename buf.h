@@ -174,12 +174,12 @@ status_code_t destroy(mpmc_queue_t *queue);
  *
  * @param[in|out] queue Pointer to the queue structure.
  * @param[in] overwrite_behavior The new overwrite behavior:
- *        - true: Allow overwriting the oldest entry when full.
- *        - false: Disallow overwriting; insertion fails when full.
+ *        - OVERWRITE: Allow overwriting the oldest entry when full.
+ *        - FAIL: Disallow overwriting; insertion fails when full.
  * @return A status code indicating the result of the operation:
  *         - SUCCESS: The overwrite behavior was successfully updated.
  *         - INVALID: The provided arguments are invalid.
  */
-status_code_t set_overwrite_behavior(mpmc_queue_t *queue, bool overwrite_behavior);
+status_code_t set_overwrite_behavior(mpmc_queue_t *queue, overwrite_behavior_t overwrite_behavior);
 
 #endif
