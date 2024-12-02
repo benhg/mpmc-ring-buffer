@@ -14,78 +14,77 @@
 
 status_code_t get(mpmc_queue_t* queue, queue_entry_t* entry){
 
-    if (queue == NULL){
-        return INVALID;
-    }
-
-    if (queue->head == queue->tail){
-        return EMPTY;
-    }
-
     if (!queue->ready[queue->tail]){
         return BUSY;
     }
 
-    // Entry must be allocated by caller
-    if (entry == NULL){
+    if (queue == NULL || entry == NULL) {
         return INVALID;
     }
 
-    // Deassert ready on old tail
+    // Check if the slot at the head is available
+    if (!queue->ready[queue->head]) {
+        return BUSY;
+    }
+
+    // Calculate the new head
+    uint32_t new_tail = (queue->tail + 1) % queue->capacity;
+
+    // Check for empty
+    if (abs((int)(new_tail - queue->tail)) == 0) {
+        return EMPTY;
+    }
+
+    // Mark current tail as not ready
     queue->ready[queue->tail] = false;
 
-    // Memcpy the entry
-    // This is always an operation of size 1, so just use element size
-    memcpy(entry, queue->array[queue->tail], queue->element_size);
-
-    queue->tail = ((++queue->tail) % queue->capacity);
-
-    // Assert ready on old tail
-    queue->ready[--queue->tail] = true;
-
-    // Assert ready on new tail
+    // Copy the new entry into the array
+    memcpy(entry, (char*)queue->array + queue->tail * queue->element_size, queue->element_size);
+    // Mark current tail as ready
     queue->ready[queue->tail] = true;
+
+    // Mark new tail as ready and update the head pointer
+    queue->tail = new_tail;
+    queue->ready[new_tail] = true;
 
     return SUCCESS;
 }
 
-status_code_t put(mpmc_queue_t* queue, queue_entry_t* entry){
-    
-    if (queue == NULL){
+status_code_t put(mpmc_queue_t* queue, queue_entry_t* entry) {
+    if (queue == NULL || entry == NULL) {
         return INVALID;
     }
 
-    if (queue->head == queue->tail){
-        if (queue->overwrite_behavior == OVERWRITE){
+    // Check if the slot at the head is available
+    if (!queue->ready[queue->head]) {
+        return BUSY;
+    }
+
+    // Calculate the new head
+    uint32_t new_head = (queue->head + 1) % queue->capacity;
+
+    // Check for capacity overflow
+    if (abs((int)(new_head - queue->tail)) >= queue->capacity) {
+        if (queue->overwrite_behavior == OVERWRITE) {
             printf("WARNING: Overwriting entr[(ies)|y]\n");
-        } else if (queue->overwrite_behavior == FAIL){
+            // Advance the tail to make room
+            queue->tail = (queue->tail + 1) % queue->capacity;
+        } else if (queue->overwrite_behavior == FAIL) {
             return FULL;
         }
     }
 
-    if (!queue->ready[queue->tail]){
-        return BUSY;
-    }
+    // Mark current head as not ready
+    queue->ready[queue->head] = false;
 
-    // Entry must be allocated by caller
-    if (entry == NULL){
-        return INVALID;
-    }
+    // Copy the new entry into the array
+    memcpy((char*)queue->array + queue->head * queue->element_size, entry, queue->element_size);
+    // Mark current head as ready
+    queue->ready[queue->head] = true;
 
-    // Deassert ready on old tail
-    queue->ready[queue->tail] = false;
-
-    // Memcpy the entry
-    // This is always an operation of size 1, so just use element size
-    memcpy(entry, queue->array[queue->tail], queue->element_size);
-
-    queue->tail = ((++queue->tail) % queue->capacity);
-
-    // Assert ready on old tail
-    queue->ready[--queue->tail] = true;
-
-    // Assert ready on new tail
-    queue->ready[queue->tail] = true;
+    // Mark new head as ready and update the head pointer
+    queue->ready[new_head] = true;
+    queue->head = new_head;
 
     return SUCCESS;
 }
@@ -111,6 +110,11 @@ status_code_t init(mpmc_queue_t *queue, uint32_t capacity, uint32_t element_size
         return FAILURE;
     }
 
+    // Mark all as ready
+    for (uint32_t i = 0; i<capacity; i++){
+        queue->ready[i] = true;
+    }
+
     queue->element_size = element_size;
     queue->capacity = capacity;
 
@@ -129,7 +133,7 @@ status_code_t init(mpmc_queue_t *queue, uint32_t capacity, uint32_t element_size
 status_code_t destroy(mpmc_queue_t *queue){
     PTR_FREE(queue->array);
     PTR_FREE(queue->ready);
-    PTR_FREE(queue); 
+    memset(queue, 0, sizeof(mpmc_queue_t));
     return SUCCESS;
 }
 

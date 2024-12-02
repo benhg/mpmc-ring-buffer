@@ -16,35 +16,35 @@ The library provides the following functions:
 ## Initialization and Cleanup
 
 - `status_code_t init(mpmc_queue_t *queue, uint32_t capacity, uint32_t element_size, overwrite_behavior_t overwrite_behavior);`
-	- Initializes the queue with the specified capacity and behavior.
+    - Initializes the queue with the specified capacity and behavior.
 - `status_code_t destroy(mpmc_queue_t *queue);`
-	- Cleans up resources associated with the queue.
+    - Cleans up resources associated with the queue.
 
 ## Data Operations
 
 - `status_code_t put(mpmc_queue_t *queue, queue_entry_t *entry);`
-	- Adds an entry to the queue. Behavior depends on the overwrite policy.
+    - Adds an entry to the queue. Behavior depends on the overwrite policy.
 - `status_code_t get(mpmc_queue_t *queue, queue_entry_t *entry);`
-	- Retrieves an entry from the queue.
+    - Retrieves an entry from the queue.
 
 ## Configuration
 
 - status_code_t `set_overwrite_behavior(mpmc_queue_t *queue, bool overwrite_behavior);`
-	- Updates the overwrite behavior of the queue.
+    - Updates the overwrite behavior of the queue.
 
 # Status Codes
 
 
 The API functions return status_code_t values to indicate the result of operations:
 
-Code	Description
-SUCCESS	Operation completed successfully.
-FAILURE	General error occurred.
-FULL	Queue is full (and no overwrite allowed).
-EMPTY	Queue is empty.
-BUSY	Queue is busy (e.g., resource contention).
-UNAVAILABLE	Resource is unavailable.
-INVALID	Invalid arguments were provided.
+Code    Description
+SUCCESS Operation completed successfully.
+FAILURE General error occurred.
+FULL    Queue is full (and no overwrite allowed).
+EMPTY   Queue is empty.
+BUSY    Queue is busy (e.g., resource contention).
+UNAVAILABLE Resource is unavailable.
+INVALID Invalid arguments were provided.
 
 # Usage
 
@@ -102,7 +102,7 @@ gcc main.c -o test_queue
 ```
 mpmc-ring-buffer/
 ├── test.c            # Test cases
-├── buf.c      		  # Queue implementation
+├── buf.c             # Queue implementation
 ├── buf.h             # Queue API header
 ├── README.md         # Project documentation
 └── Makefile          # Build system
@@ -110,7 +110,7 @@ mpmc-ring-buffer/
 
 ## Building
 
-To build the library and test cases, use the provided Makefile:
+To build the library and test cases, use the provided Makefile
 
 
 
