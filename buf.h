@@ -95,7 +95,7 @@ typedef enum status_code {
 typedef struct mpmc_queue {
   queue_entry_t *array; //< The actual storage array
   bool *ready; //< A list of bools equal in length to the array. Used for
-               //synchronization
+               // synchronization
                // These should be accessed atomically. If you use this in C++,
                // you can make the variables atomic. In C, make sure you access
                // them correctly. N.B. C++ atomics semantics bother me. A
