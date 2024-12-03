@@ -14,12 +14,13 @@
 
 status_code_t get(mpmc_queue_t *queue, queue_entry_t *entry) {
 
-  if (!queue->ready[queue->tail]) {
-    return BUSY;
-  }
-
   if (queue == NULL || entry == NULL) {
     return INVALID;
+  }
+
+  
+  if (!queue->ready[queue->tail]) {
+    return BUSY;
   }
 
   // Check if the slot at the head is available
